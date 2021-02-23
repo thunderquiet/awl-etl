@@ -1,0 +1,49 @@
+
+    {
+      "objects": [
+        {
+          "period": "1 days",
+          "name": "Every 1 day",
+          "id": "DefaultSchedule",
+          "type": "Schedule",
+          "startAt": "FIRST_ACTIVATION_DATE_TIME"
+        },
+        {
+          "scriptUri": "s3://pavel010-glue-scripts-dev/etl.py",
+          "name": "DefaultActivity1",
+          "id": "ActivityId_qyoFQ",
+          "runsOn": {
+            "ref": "ResourceId_KlGSk"
+          },
+          "type": "ShellCommandActivity",
+          "schedule": {
+            "ref": "DefaultSchedule"
+          }
+        },
+
+        {
+          "imageId": "ami-0e039c7d64008bd84",
+          "instanceType": "t2.micro",
+          "name": "DefaultResource1",
+          "id": "ResourceId_KlGSk",
+          "type": "Ec2Resource",
+          "terminateAfter": "30 Minutes",
+          "schedule": {
+            "ref": "DefaultSchedule"
+          }
+        },
+        {
+          "failureAndRerunMode": "CASCADE",
+          "resourceRole": "etl-pipeline-ui-ec2-role",
+          "role": "etl-dev",
+          "pipelineLogUri": "s3://pavel010-glue-scripts-dev/",
+          "scheduleType": "cron",
+          "name": "Default",
+          "id": "Default",
+          "schedule": {
+            "ref": "DefaultSchedule"
+          }
+        }
+      ],
+      "parameters": []
+    }

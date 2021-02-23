@@ -1,0 +1,22 @@
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: etl-job
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: "Forbid"
+  failedJobsHistoryLimit: 10
+  startingDeadlineSeconds: 60 # 1min
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 50 # 5sec
+      template:
+        spec:
+          containers:
+            - name: etl-job
+              image: elt-image
+              command: ["python"]
+              args: ["./etl.py"]
+          restartPolicy: Never
