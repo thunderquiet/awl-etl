@@ -1,0 +1,40 @@
+
+
+Please look at runner.sh as the main entry point for my code.
+
+Likely need to provide correct AWS account details to get access permissions to various things like dynamo DB buckets, etc.
+
+
+Note: For the data source, I have used my own copy of the https://whale-alert.io/ dataset that was setup as part of another personal project earlier this year. I usually keep all of my code on a private git server on my home file server. However, I have cloned a copy if you are interested: https://github.com/thunderquiet/wtb
+That project involved creating an AWS-Lambda-based dashboard and various scheduled jobs for pulling updates from the whale-trade API and some machine-learning tasks (the ML code is a seperate C++ repo not currently exposed). The project is currently deployed at: https://k8kdpn1s52.execute-api.ap-northeast-1.amazonaws.com/test?cmd=get_page
+
+The data I used here is for the bottom chart on that page. The other charts are using data pulled live from binance Futures API.
+
+
+Regarding the current assignment, I spent quite a bit of time debugging various permission issues with Data Pipelines but unfortunately did not manage to complete it in the appropriate amount of time.
+
+
+
+
+1: ETL & Terraform:
+
+According to Hashicorp, the Data Pipelines are not supported in Terraform: https://github.com/hashicorp/terraform/issues/4077
+I have used some bash and cloudformation code as workaroounds.
+
+I wanted to reduce amoount of repetition so all business logic is encapsulated in the etl.py file. It connects to my DynamoDB to fetch 100 most recent entries. It extracts the transaction amount and timestamp and calculates the date of the timestamp. We then sum the amounts by the timestamp and date buckets. The final values are returned to stdout.
+
+Glue vs Data Pipelines:
+	Pipelines appears to be an older and more generic ETL framework. It uses EC2 machines and third-party tools. Its slowwer and more expensive to start up. However it will be more flexible in letting you ingest any data source you want and offers a limited visual-based editor.
+
+	Glue is a more simplified version that runs on top of serverless (lambda) infrastructure. It seems to be limited to just working with data that is already in the AWS ecosystem (S3, Dynamo, etc), but it should be cheaper to run overall.
+
+	Both tools are unfortunatelly still crude, complex to setup and slow to run. I think this is mostly because they are trying to support as many usecases as possible. By trimming the suppored feature set to focus om fewer items, it should be possible to grealy improve those products.
+
+
+
+2: Kubernetes Docs:
+	The runner bash script schedules the job to run every 1 minute.
+	The job will trigger a local elt.py python file.
+	I am assuming that the python file will be deployed inside the docker image that this job requires to run
+	The file should be identical to the etl.py file used in the two previous parts.
+
